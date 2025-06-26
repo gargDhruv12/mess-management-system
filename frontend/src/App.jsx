@@ -1,46 +1,126 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { AppBar, Toolbar, Button, Container, Typography, Box } from '@mui/material';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import StudentDashboard from './pages/StudentDashboard';
-import AdminPanel from './pages/AdminPanel';
+import AdminDashboard from './pages/AdminDashboard';
+import StudentProfile from './pages/StudentProfile';
+import MarkAbsence from './pages/MarkAbsence';
+import Feedback from './pages/Feedback';
+import SearchStudent from './pages/SearchStudent';
+import ManageRation from './pages/ManageRation';
+import UpdateMenu from './pages/UpdateMenu';
+import ViewAbsentees from './pages/ViewAbsentees';
+import Reports from './pages/Reports';
+import Analytics from './pages/Analytics';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <Router>
-      <AppBar position="static">
-        <Toolbar>
-          <Button color="inherit" component={Link} to="/">Home</Button>
-          <Button color="inherit" component={Link} to="/login">Login</Button>
-          <Button color="inherit" component={Link} to="/student">Student Dashboard</Button>
-          <Button color="inherit" component={Link} to="/admin">Admin Panel</Button>
-        </Toolbar>
-      </AppBar>
-      <Container>
-        <Box my={4}>
+    <AuthProvider>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <Navbar />
+        <main className="container mx-auto px-4 py-8">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/student" element={<StudentDashboard rollNumber="123" />} />
-            <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/" element={<Login />} />
+            
+            {/* Student Routes */}
+            <Route 
+              path="/student" 
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <StudentDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/student/profile" 
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <StudentProfile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/student/mark-absence" 
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <MarkAbsence />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/student/feedback" 
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <Feedback />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Admin Routes */}
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/search-student" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <SearchStudent />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/manage-ration" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <ManageRation />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/update-menu" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <UpdateMenu />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/view-absentees" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <ViewAbsentees />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/reports" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Reports />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/analytics" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Analytics />
+                </ProtectedRoute>
+              } 
+            />
           </Routes>
-        </Box>
-      </Container>
-    </Router>
-  );
-}
-
-function Home() {
-  return (
-    <Box textAlign="center" py={4}>
-      <Typography variant="h3" component="h1" gutterBottom>
-        Welcome to the Mess Management System
-      </Typography>
-      <Typography variant="h6" color="textSecondary">
-        Please select an option from the navigation bar above.
-      </Typography>
-    </Box>
+        </main>
+      </div>
+    </AuthProvider>
   );
 }
 
 export default App;
-
