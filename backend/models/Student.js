@@ -1,16 +1,15 @@
-const mongoose = require('mongoose');
+const express = require('express');
+const router = express.Router();
+const {
+  getAllStudents,
+  getStudentById
+} = require('../controllers/studentController');
+const { protect, isAdmin } = require('../middleware/authMiddleware');
 
-const extraItemSchema = new mongoose.Schema({
-  name: String,
-  price: Number,
-  date: { type: Date, default: Date.now }
-});
+// Admin can view all students
+router.get('/', protect, isAdmin, getAllStudents);
 
-const studentSchema = new mongoose.Schema({
-  name: String,
-  rollNumber: { type: String, unique: true },
-  balance: Number,
-  extras: [extraItemSchema],
-});
+// Authenticated users can view their own info
+router.get('/:id', protect, getStudentById);
 
-module.exports = mongoose.model('Student', studentSchema);
+module.exports = router;

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { submitAbsence, getAbsenteesByDate } = require('../controllers/absenceController');
+const { protect } = require('../middleware/authMiddleware');
+const { requestAbsence } = require('../controllers/absenceController');
 
-router.post('/', submitAbsence);
-router.get('/:date', getAbsenteesByDate);
+router.post('/:rollNumber', protect, requestAbsence);
 
 module.exports = router;

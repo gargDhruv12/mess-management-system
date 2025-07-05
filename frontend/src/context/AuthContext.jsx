@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authAPI } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -15,37 +16,54 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in from localStorage
+    // Check if user is logged in from localStorage and token exists
     const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    const token = localStorage.getItem('token');
+    
+    if (savedUser && token) {
+      // Verify token is still valid by calling /auth/me
+      authAPI.getCurrentUser()
+        .then(response => {
+          if (response.success) {
+            setUser(response.user);
+            localStorage.setItem('user', JSON.stringify(response.user));
+          } else {
+            // Token is invalid, clear everything
+            logout();
+          }
+        })
+        .catch(() => {
+          // Token is invalid, clear everything
+          logout();
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const login = async (credentials) => {
     try {
-      // Simulate API call - replace with actual backend call
-      const mockUser = {
-        id: credentials.role === 'student' ? credentials.username : 'admin001',
-        username: credentials.username,
-        role: credentials.role,
-        name: credentials.role === 'student' ? 'Rahul Kumar' : 'Admin User',
-        rollNumber: credentials.role === 'student' ? credentials.username : null,
-        balance: credentials.role === 'student' ? 25750 : null
-      };
+      const response = await authAPI.login(credentials);
       
-      setUser(mockUser);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      return { success: true, user: mockUser };
+      if (response.success) {
+        setUser(response.user);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        return { success: true, user: response.user };
+      } else {
+        return { success: false, error: response.message || 'Login failed' };
+      }
     } catch (error) {
-      return { success: false, error: 'Login failed' };
+      console.error('Login error:', error);
+      return { success: false, error: error.message || 'Login failed' };
     }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    authAPI.logout();
   };
 
   const value = {
